@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>O.D AI – one question, many AIs</title>
+<meta name="description" content="O.D AI is a free AI assistant that asks several AI models (Gemini, Llama and more) your question and merges their answers into one clear, checked answer.">
+<meta name="keywords" content="O.D AI, OD AI, O.D, free AI assistant, multi AI, AI answer aggregator">
+<link rel="canonical" href="https://od-ai.pages.dev/">
+<meta property="og:title" content="O.D AI – one question, many AIs">
+<meta property="og:description" content="Free AI assistant that asks several AI models and merges their answers into one.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://od-ai.pages.dev/">
+<meta name="theme-color" content="#0b0d12">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"O.D AI","alternateName":["OD AI","O.D"],"url":"https://od-ai.pages.dev/","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","description":"Free AI assistant that asks several AI models and merges their answers into one.","offers":{"@type":"Offer","price":"0","priceCurrency":"INR"}}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500&family=JetBrains+Mono&display=swap" rel="stylesheet">
+<script src="/marked.min.js"></script>
+<script src="/purify.min.js"></script>
+<style>
+  :root{
+    --bg:#0b0d12; --panel:#12151d; --panel2:#181c26; --line:#252a37;
+    --text:#e8ebf2; --muted:#8b93a7; --accent:#7cf2c9; --accent2:#8aa8ff; --warn:#ffb86b;
+    --r:14px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font:15px/1.6 Inter,system-ui,sans-serif}
+  body{display:flex;flex-direction:column}
+  header{display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid var(--line);background:rgba(11,13,18,.9);position:sticky;top:0;z-index:5;backdrop-filter:blur(8px)}
+  .logo{font:700 22px 'Space Grotesk',sans-serif;letter-spacing:2px;display:flex;align-items:center;gap:10px}
+  .orb{width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 30% 30%,var(--accent),var(--accent2) 60%,#2a2f6b);box-shadow:0 0 18px rgba(124,242,201,.45)}
+  .orb.busy{animation:pulse 1.2s ease-in-out infinite}
+  @keyframes pulse{50%{transform:scale(.82);box-shadow:0 0 30px rgba(138,168,255,.8)}}
+  .tag{color:var(--muted);font-size:13px}
+  .spacer{flex:1}
+  .seg{display:flex;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:3px}
+  .seg button{background:none;border:0;color:var(--muted);padding:6px 14px;border-radius:999px;cursor:pointer;font:500 13px Inter,sans-serif}
+  .seg button.on{background:var(--panel2);color:var(--text);box-shadow:inset 0 0 0 1px var(--line)}
+  .ghost{background:none;border:1px solid var(--line);color:var(--muted);padding:7px 12px;border-radius:10px;cursor:pointer;font-size:13px}
+  .ghost:hover{color:var(--text);border-color:#39405a}
+  main{flex:1;overflow-y:auto}
+  .wrap{max-width:820px;margin:0 auto;padding:24px 20px 140px}
+  .hero{text-align:center;padding:60px 10px 20px}
+  .hero h1{font:700 44px 'Space Grotesk',sans-serif;margin:16px 0 6px;letter-spacing:3px}
+  .hero p{color:var(--muted);margin:0 auto;max-width:520px}
+  .hero .orb{width:70px;height:70px;margin:0 auto}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:28px}
+  .chip{background:var(--panel);border:1px solid var(--line);color:var(--text);padding:8px 14px;border-radius:999px;cursor:pointer;font-size:13.5px}
+  .chip:hover{border-color:var(--accent)}
+  .msg{margin:22px 0}
+  .user{display:flex;justify-content:flex-end}
+  .user .bubble{background:var(--panel2);border:1px solid var(--line);padding:10px 16px;border-radius:var(--r) var(--r) 4px var(--r);max-width:80%;white-space:pre-wrap}
+  .od{display:flex;gap:12px}
+  .od .orb{flex:none;width:22px;height:22px;margin-top:4px}
+  .od .body{flex:1;min-width:0}
+  .answer{overflow-wrap:anywhere}
+  .answer p{margin:.5em 0}
+  .answer pre{background:#0e1118;border:1px solid var(--line);padding:12px;border-radius:10px;overflow-x:auto}
+  .answer code{font-family:'JetBrains Mono',monospace;font-size:13px}
+  .answer :not(pre)>code{background:var(--panel2);padding:1px 6px;border-radius:6px}
+  .answer table{border-collapse:collapse;width:100%;font-size:14px}
+  .answer th,.answer td{border:1px solid var(--line);padding:6px 10px;text-align:left}
+  .answer h1,.answer h2,.answer h3{font-family:'Space Grotesk',sans-serif;margin:1em 0 .3em}
+  .answer a{color:var(--accent2)}
+  .status{color:var(--muted);font-size:13px;display:flex;align-items:center;gap:8px}
+  .dots::after{content:'';animation:dots 1.2s steps(4) infinite}
+  @keyframes dots{0%{content:''}25%{content:'.'}50%{content:'..'}75%{content:'...'}}
+  .council{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:4px 0 14px}
+  .lens{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px;cursor:pointer;transition:border-color .2s}
+  .lens:hover{border-color:#39405a}
+  .lens .h{display:flex;align-items:center;gap:8px;font:500 13px 'Space Grotesk',sans-serif}
+  .lens .dot{width:8px;height:8px;border-radius:50%;background:var(--line)}
+  .lens.run .dot{background:var(--warn);animation:pulse 1s infinite}
+  .lens.done .dot{background:var(--accent)}
+  .lens.fail .dot{background:#ff6b81}
+  .lens .s{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--muted);font-size:12px;margin-top:2px}
+  .lensDetail{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:6px 16px;margin:-6px 0 14px;font-size:14px;display:none}
+  .lensDetail.show{display:block}
+  .tools{display:flex;gap:6px;margin-top:8px}
+  .tools button{background:none;border:0;color:var(--muted);font-size:12px;cursor:pointer;padding:4px 6px;border-radius:6px}
+  .tools button:hover{color:var(--text);background:var(--panel)}
+  .composer{position:fixed;left:0;right:0;bottom:0;padding:14px 20px 18px;background:linear-gradient(transparent,var(--bg) 30%)}
+  .box{max-width:820px;margin:0 auto;display:flex;gap:10px;align-items:flex-end;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:10px 10px 10px 16px}
+  .box:focus-within{border-color:#3a4463}
+  textarea{flex:1;background:none;border:0;color:var(--text);font:15px/1.5 Inter,sans-serif;resize:none;outline:none;max-height:180px;padding:6px 0}
+  #send{background:var(--accent);color:#06221a;border:0;border-radius:12px;width:40px;height:40px;cursor:pointer;font-size:18px;font-weight:700}
+  #send:disabled{opacity:.35;cursor:default}
+  .note{max-width:820px;margin:8px auto 0;color:var(--muted);font-size:11.5px;text-align:center}
+  .err{color:#ff8fa0;font-size:14px}
+  @media (max-width:640px){
+    .tag{display:none}
+    .council{grid-template-columns:1fr}
+    .hero h1{font-size:34px}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo"><div class="orb" id="hOrb"></div>O.D</div>
+  <div class="tag">one question, many minds</div>
+  <div class="spacer"></div>
+  <div class="seg" role="tablist" aria-label="Mode">
+    <button id="mQuick" class="on" title="One fast, direct answer">Quick</button>
+    <button id="mCouncil" title="Several AIs answer, then one merged answer">Council</button>
+  </div>
+  <button class="ghost" id="newChat">New</button>
+</header>
+
+<main id="main">
+  <div class="wrap" id="thread">
+    <div class="hero" id="hero">
+      <div class="orb"></div>
+      <h1>O.D AI</h1>
+      <p>Ask anything. In <b>Council</b> mode O.D AI sends your question to several AI models at once (Gemini, Llama and Cloudflare AI), compares their answers and merges them into one.</p>
+      <div class="chips" id="chips"></div>
+    </div>
+  </div>
+</main>
+
+<div class="composer">
+  <form class="box" id="form">
+    <textarea id="q" rows="1" placeholder="Ask O.D anything…"></textarea>
+    <button id="send" type="submit" aria-label="Send">↑</button>
+  </form>
+  <div class="note" id="note">O.D AI is free and uses free AI services, so there is a daily question limit. Answers can be wrong; check important facts. Don't type private or personal information.</div>
+</div>
+
+<script>
+(() => {
+  const $ = s => document.querySelector(s);
+  const thread = $('#thread'), main = $('#main'), q = $('#q'), send = $('#send'), hOrb = $('#hOrb');
+  let mode = 'quick', busy = false, history = [], sample = null, ctrl = null;
+
+  try { const m = localStorage.getItem('od-mode'); if (m === 'council') setMode('council'); } catch(e){}
+
+  const examples = [
+    'Explain how a GPS receiver finds its position',
+    'Is it worth learning Rust in 2026?',
+    'Give me 5 weekend project ideas with an ESP32',
+    'Why does the sky look red at sunset?'
+  ];
+  examples.forEach(t => {
+    const b = document.createElement('button'); b.className = 'chip'; b.textContent = t;
+    b.onclick = () => { q.value = t; ask(); };
+    $('#chips').appendChild(b);
+  });
+
+  const PLACEHOLDER = ['Llama (Groq)','Gemini','Cloudflare AI'];
+
+  function setMode(m){
+    mode = m;
+    $('#mQuick').classList.toggle('on', m === 'quick');
+    $('#mCouncil').classList.toggle('on', m === 'council');
+    try { localStorage.setItem('od-mode', m); } catch(e){}
+  }
+  $('#mQuick').onclick = () => setMode('quick');
+  $('#mCouncil').onclick = () => setMode('council');
+
+  $('#newChat').onclick = () => {
+    if (ctrl) ctrl.abort();
+    history = []; busy = false; setBusy(false);
+    thread.querySelectorAll('.msg').forEach(n => n.remove());
+    $('#hero').style.display = '';
+    q.focus();
+  };
+
+  q.addEventListener('input', autosize);
+  q.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); ask(); } });
+  $('#form').addEventListener('submit', e => { e.preventDefault(); ask(); });
+  function autosize(){ q.style.height = 'auto'; q.style.height = Math.min(q.scrollHeight, 180) + 'px'; }
+
+  function md(text){
+    try {
+      if (window.marked && window.DOMPurify) return DOMPurify.sanitize(marked.parse(text || ''));
+    } catch(e){}
+    const d = document.createElement('div'); d.textContent = text || ''; return '<p style="white-space:pre-wrap">' + d.innerHTML + '</p>';
+  }
+  function scroll(){ main.scrollTop = main.scrollHeight; }
+  function setBusy(b){ busy = b; send.disabled = b; hOrb.classList.toggle('busy', b); }
+
+  function addUser(text){
+    const m = document.createElement('div'); m.className = 'msg user';
+    const b = document.createElement('div'); b.className = 'bubble'; b.textContent = text;
+    m.appendChild(b); thread.appendChild(m);
+  }
+  function addOD(){
+    const m = document.createElement('div'); m.className = 'msg od';
+    m.innerHTML = '<div class="orb busy"></div><div class="body"><div class="councilSlot"></div><div class="status"><span class="dots">Thinking</span></div><div class="answer main"></div><div class="tools" hidden><button class="copy">Copy</button><button class="regen">Ask again</button></div></div>';
+    thread.appendChild(m); return m;
+  }
+
+  async function ask(textArg){
+    const text = (textArg ?? q.value).trim();
+    if (!text || busy) return;
+    $('#hero').style.display = 'none';
+    q.value = ''; autosize();
+    addUser(text);
+    const node = addOD(); scroll();
+    setBusy(true);
+    const st = node.querySelector('.status');
+    let grid = null;
+    if (mode === 'council') {
+      grid = document.createElement('div'); grid.className = 'council';
+      PLACEHOLDER.forEach(n => { const c = document.createElement('div'); c.className = 'lens run';
+        c.innerHTML = '<div class="h"><span class="dot"></span>' + n + '</div><div class="s">thinking</div>'; grid.appendChild(c); });
+      node.querySelector('.councilSlot').appendChild(grid);
+      st.querySelector('.dots').textContent = 'Asking several AIs and merging';
+    }
+    ctrl = new AbortController();
+    const past = history.slice(-6);
+    try {
+      const r = await fetch('/api/ask', { method:'POST', signal: ctrl.signal, headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ question: text, mode, history: past }) });
+      let d = {}; try { d = await r.json(); } catch(e){}
+      if (grid && d.panel) renderPanel(node, grid, d.panel);
+      if (!r.ok || !d.answer) { finish(node, null, d.error || 'Something went wrong. Please try again.', text); return; }
+      history.push({ role:'user', content:text }, { role:'assistant', content:d.answer });
+      finish(node, d.answer, null, text);
+    } catch (e) {
+      if (e && e.name === 'AbortError') return;
+      finish(node, null, 'Could not reach O.D AI. Check your internet connection and try again.', text);
+    }
+  }
+
+  function renderPanel(node, grid, panel){
+    grid.innerHTML = '';
+    const detail = document.createElement('div'); detail.className = 'lensDetail answer';
+    let open = null;
+    panel.forEach((p, i) => {
+      const c = document.createElement('div'); c.className = 'lens ' + (p.ok ? 'done' : 'fail');
+      c.innerHTML = '<div class="h"><span class="dot"></span></div><div class="s"></div>';
+      c.querySelector('.h').append(p.name);
+      c.querySelector('.s').textContent = p.ok ? 'answered · tap to read' : 'busy, skipped';
+      c.onclick = () => {
+        if (!p.text) return;
+        if (open === i) { detail.classList.remove('show'); open = null; return; }
+        open = i; detail.innerHTML = '';
+        const h = document.createElement('h3'); h.textContent = p.name;
+        const b = document.createElement('div'); b.innerHTML = md(p.text);
+        detail.append(h, b); detail.classList.add('show');
+      };
+      grid.appendChild(c);
+    });
+    grid.after(detail);
+  }
+
+  function finish(node, text, err, question){
+    node.querySelector('.orb').classList.remove('busy');
+    const st = node.querySelector('.status'); st.style.display = 'none';
+    const ans = node.querySelector('.answer.main');
+    if (text) ans.innerHTML = md(text);
+    if (err) { const e = document.createElement('div'); e.className = 'err'; e.textContent = err; node.querySelector('.body').appendChild(e); }
+    const tools = node.querySelector('.tools');
+    if (text || question) {
+      tools.hidden = false;
+      const cp = tools.querySelector('.copy');
+      if (!text) cp.remove(); else cp.onclick = async () => {
+        try { await navigator.clipboard.writeText(text); cp.textContent = 'Copied'; } catch(e){ cp.textContent = 'Select & copy'; }
+        setTimeout(() => cp.textContent = 'Copy', 1500);
+      };
+      const rg = tools.querySelector('.regen');
+      if (!question) rg.remove(); else rg.onclick = () => ask(question);
+    }
+    setBusy(false); ctrl = null; scroll();
+  }
+
+  q.focus();
+})();
+</script>
+</body>
+</html>

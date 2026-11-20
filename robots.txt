@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://od-ai.pages.dev/sitemap.xml
